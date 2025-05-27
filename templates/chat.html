@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Research Paper Assistant - Analyze research papers with AI">
+    <!-- Force no-cache -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Modern fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css')}}"/>
+	<title>Research Assistant</title>
+
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0f172a;
+      --card: #ffffff;
+      --card-foreground: #0f172a;
+      --primary: #0f172a;
+      --primary-foreground: #ffffff;
+      --secondary: #f1f5f9;
+      --secondary-foreground: #0f172a;
+      --accent: #f1f5f9;
+      --accent-foreground: #0f172a;
+      --destructive: #ef4444;
+      --destructive-foreground: #ffffff;
+      --ring: #cbd5e1;
+      --radius: 0.5rem;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --success-foreground: #ffffff;
+    }
+
+    .dark {
+      --background: #0f172a;
+      --foreground: #f8fafc;
+      --card: #1e293b;
+      --card-foreground: #f8fafc;
+      --primary: #f8fafc;
+      --primary-foreground: #0f172a;
+      --secondary: #1e293b;
+      --secondary-foreground: #f8fafc;
+      --accent: #0284c7;
+      --accent-foreground: #f8fafc;
+      --destructive: #ef4444;
+      --destructive-foreground: #f8fafc;
+      --ring: #1e293b;
+      --border: #1e293b;
+      --success: #10b981;
+      --success-foreground: #f8fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.6;
+      letter-spacing: -0.025em;
+      min-height: 100vh;
+    }
+
+    body.dark {
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    /* Layout */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .nav-container {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: var(--foreground);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+    }
+
+    /* Status indicator */
+    .status-indicator {
+      width: 100%;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+    }
+
+    .operational {
+      background-color: var(--success);
+      color: var(--success-foreground);
+    }
+
+    .degraded {
+      background-color: #f59e0b;
+      color: #ffffff;
+    }
+
+    .offline {
+      background-color: var(--destructive);
+      color: var(--destructive-foreground);
+    }
+
+    /* Main content */
+    .layout {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      width: 100%;
+      gap: 1.5rem;
+      padding: 1.5rem 0;
+    }
+
+    @media (min-width: 768px) {
+      .layout {
+        flex-direction: row;
+      }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      flex-shrink: 0;
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background-color: var(--card);
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        width: 350px;
+      }
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* Main panel */
+    .main-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 500px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background-color: var(--card);
+      overflow: hidden;
+    }
+
+    .main-panel.hidden {
+      display: none;
+    }
+
+    .panel-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--card-foreground);
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 300px);
+      min-height: 350px;
+    }
+
+    .message-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    /* Input form */
+    .input-form {
+      display: flex;
+      padding: 1rem;
+      border-top: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+
+    .input-field {
+      flex: 1;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background-color: var(--background);
+      color: var(--foreground);
+      resize: none;
+      outline: none;
+      min-height: 40px;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    /* Messages */
+    .message {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+      max-width: 85%;
+    }
+
+    .message-user {
+      align-self: flex-end;
+    }
+
+    .message-assistant {
+      align-self: flex-start;
+    }
+
+    .message-content {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .message-user .message-content {
+      background-color: var(--accent);
+      color: var(--accent-foreground);
+      border-radius: var(--radius) var(--radius) 0 var(--radius);
+    }
+
+    .message-assistant .message-content {
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+      border-radius: var(--radius) var(--radius) var(--radius) 0;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--foreground);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 1rem;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    /* Status messages */
+    .status-message {
+      font-size: 0.875rem;
+      margin: 0.5rem 0;
+    }
+
+    /* Buttons */
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2.5rem;
+      padding: 0 1rem;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .button-primary {
+      background-color: var(--accent);
+      color: var(--accent-foreground);
+    }
+
+    .button-primary:hover:not(:disabled) {
+      background-color: var(--accent);
+      opacity: 0.9;
+    }
+
+    .button-secondary {
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+    }
+
+    .button-secondary:hover:not(:disabled) {
+      background-color: var(--secondary);
+      opacity: 0.9;
+    }
+
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      border: none;
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-button:hover:not(:disabled) {
+      background-color: var(--secondary);
+      opacity: 0.9;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: var(--radius);
+      background: transparent;
+      border: none;
+    }
+
+    /* Helper utilities */
+    .hidden {
+      display: none;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    .url-note {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+
+    .file-limit-note {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+
+    .dark .url-note {
+      color: var(--text-secondary);
+    }
+
+    .dark .file-limit-note {
+      color: var(--text-secondary);
+    }
+  </style>
+
+</head>
+<body class="dark">
+  <div class="app-container">
+    <!-- Mobile Menu Button -->
+    <button class="show-sidebar-btn" id="showSidebarBtn">
+      <i class="ri-menu-line"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h1>Research Assistant</h1>
+        <button class="close-sidebar-btn" id="closeSidebarBtn">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+      
+      <!-- Upload PDF Section -->
+      <div class="upload-pdf">
+        <h3 class="section-title">Upload PDF</h3>
+        <div class="input-group">
+          <label for="pdfFile">Choose a PDF file (1 per session)</label>
+          <input type="file" id="pdfFile" accept=".pdf">
+          <p class="file-limit-note">Maximum file size: 16MB</p>
+        </div>
+        <button class="submit-btn" id="uploadPdfBtn">Upload</button>
+        
+        <!-- PDF list container -->
+        <div class="pdf-list-container" id="pdfListContainer">
+          <h4 class="pdf-list-title">Current PDF</h4>
+          <ul class="pdf-list" id="pdfList">
+            <!-- PDF will be listed here -->
+            <li class="no-pdfs">No PDF uploaded yet</li>
+          </ul>
+        </div>
+  </div>
+
+      <!-- Add URL Section -->
+      <div class="add-url-section">
+        <h3 class="section-title">Add URL</h3>
+        <div class="input-group">
+          <label for="paperUrl">Enter URL of research paper</label>
+          <input type="text" id="paperUrl" placeholder="https://example.com/paper">
+          <p class="url-note">Only ArXiv, IEEE, and Science Direct links are supported.</p>
+        </div>
+        <button class="submit-btn" id="loadUrlBtn">Load URL</button>
+      </div>
+      
+      <!-- Clear Session Button -->
+      <div class="clear-session-container">
+        <button class="clear-btn" id="clearSessionBtn">Clear Session Data</button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="chat-header">
+        <h2>Chat</h2>
+        <a href="/" class="home-btn" title="Return to Home">
+          <i class="ri-home-line"></i>
+          <span>Return Home</span>
+        </a>
+      </div>
+      
+      <div class="chat-messages" id="messageFormeight">
+        <!-- Messages will be loaded here -->
+      </div>
+      
+      <div class="chat-input-container">
+        <div class="chat-input-box">
+          <input type="text" id="userMsg" class="chat-input" placeholder="Enter a prompt here..." autocomplete="off">
+          <button class="chat-submit-btn" id="sendBtn">
+            <i class="ri-send-plane-fill"></i>
+          </button>
+        </div>
+      </div>
+  </main>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      // Generate a new session ID on page load
+      currentSessionId = Date.now().toString();
+      
+      // Clear previous session data when page loads/refreshes
+      clearPineconeIndex();
+      
+      // Check system status on page load
+      checkSystemStatus();
+      
+      // Display the initial new session message
+      appendSystemMessage("Starting a new session. You can upload a PDF or provide a URL to begin.");
+      
+      // Handle sending messages
+      $("#sendBtn").on("click", function() {
+        sendMessage();
+      });
+      
+      // Allow pressing Enter to send message
+      $("#userMsg").keypress(function(e) {
+        if (e.which == 13) {
+          sendMessage();
+          return false;
+        }
+      });
+      
+      // Handle PDF upload
+      $("#uploadPdfBtn").on("click", function() {
+        uploadPdf();
+      });
+      
+      // Handle URL loading
+      $("#loadUrlBtn").on("click", function() {
+        loadUrl();
+      });
+      
+      // Handle clear session
+      $("#clearSessionBtn").on("click", function() {
+        clearSession();
+      });
+      
+      // Mobile sidebar toggle
+      $("#showSidebarBtn").on("click", function() {
+        $("#sidebar").addClass("active");
+      });
+      
+      $("#closeSidebarBtn").on("click", function() {
+        $("#sidebar").removeClass("active");
+      });
+      
+      // Add event listener for beforeunload to handle page refresh/close
+      $(window).on('beforeunload', function() {
+        // Store the session ID in localStorage before page unloads
+        localStorage.setItem('previous_session_id', currentSessionId);
+      });
+    });
+    
+    var currentUrl = "";
+    var currentPdfFilename = "";
+    var currentSessionId = Date.now().toString(); // Create a unique session ID
+    
+    function clearPineconeIndex() {
+      // Check if there was a previous session
+      const previousSessionId = localStorage.getItem('previous_session_id');
+      
+      if (previousSessionId) {
+        // Clear the previous session's Pinecone data
+        $.ajax({
+          url: "/clear_session",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ 
+            session_id: previousSessionId,
+            clear_only_pinecone: true
+          }),
+          success: function(response) {
+            console.log("Previous Pinecone data cleared successfully");
+            // Clear the previous session ID from localStorage
+            localStorage.removeItem('previous_session_id');
+          },
+          error: function(error) {
+            console.error("Error clearing previous Pinecone data: ", error);
+          }
+        });
+      } else {
+        // Forcibly clear any current session data on page load/refresh as fallback
+        const currentTime = Date.now().toString();
+        localStorage.setItem('previous_session_id', currentSessionId);
+        currentSessionId = currentTime;
+        console.log("Created new session ID: " + currentSessionId);
+        
+        // Double-check we don't have an old session
+        $.ajax({
+          url: "/check_status",
+          type: "GET",
+          success: function(response) {
+            // Also trigger cleanup of old sessions as a safety measure
+            $.ajax({
+              url: "/cleanup",
+              type: "GET"
+            });
+          }
+        });
+      }
+    }
+    
+    function clearChatHistory() {
+      // Clear the chat interface
+      $("#messageFormeight").empty();
+    }
+    
+    function refreshPdfList() {
+      // Fetch the current PDF for the session
+      $.ajax({
+        url: "/get_pdfs",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ 
+          session_id: currentSessionId 
+        }),
+        success: function(response) {
+          if (response.status === "success") {
+            const pdfList = $("#pdfList");
+            pdfList.empty();
+            
+            if (response.pdfs.length === 0) {
+              pdfList.append('<li class="no-pdfs">No PDF uploaded yet</li>');
+                return;
+            }
+
+            // Get the first PDF (we only allow one)
+            const pdf = response.pdfs[0];
+            
+            const pdfItem = `
+              <li class="pdf-item active" data-pdf-id="${pdf.id}">
+                <i class="ri-file-pdf-line"></i>
+                <span class="pdf-item-name">${pdf.name}</span>
+              </li>
+            `;
+            
+            pdfList.append(pdfItem);
+          }
+        },
+        error: function(error) {
+          console.error("Error fetching PDF list: ", error);
+        }
+      });
+    }
+    
+    function selectPdf(pdfId) {
+      showGeneratingIndicator();
+      
+      $.ajax({
+        url: "/select_pdf",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ 
+          session_id: currentSessionId,
+          pdf_id: pdfId
+        }),
+        success: function(response) {
+          removeGeneratingIndicator();
+          if (response.status === "success") {
+            currentPdfFilename = pdfId;
+            currentUrl = "";
+            
+            // Update active state in PDF list
+            $(".pdf-item").removeClass("active");
+            $(`.pdf-item[data-pdf-id="${pdfId}"]`).addClass("active");
+            
+            // Clear chat and add confirmation message
+            clearChatHistory();
+            appendSystemMessage("PDF selected successfully! You can now ask questions about it.");
+          } else {
+            appendSystemMessage("Error selecting PDF: " + response.message);
+          }
+        },
+        error: function(error) {
+          removeGeneratingIndicator();
+          console.error("Error selecting PDF: ", error);
+          appendSystemMessage("Error selecting PDF. Please try again.");
+        }
+      });
+    }
+    
+    function clearSession() {
+      if (!confirm("This will clear all uploaded PDFs and conversation history. Are you sure?")) {
+        return;
+      }
+      
+      showGeneratingIndicator();
+      
+      $.ajax({
+        url: "/clear_session",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ 
+          session_id: currentSessionId
+        }),
+        success: function(response) {
+          removeGeneratingIndicator();
+          
+          // Generate a new session ID
+          currentSessionId = Date.now().toString();
+          currentUrl = "";
+          currentPdfFilename = "";
+          
+          // Clear the PDF list
+          $("#pdfList").empty().append('<li class="no-pdfs">No PDFs uploaded yet</li>');
+          
+          // Clear chat history and add a new session message
+          clearChatHistory();
+          appendSystemMessage("Starting a new session. You can upload a PDF or provide a URL to begin.");
+        },
+        error: function(error) {
+          removeGeneratingIndicator();
+          console.error("Error clearing session: ", error);
+          appendSystemMessage("Error clearing session. Please try again.");
+        }
+      });
+    }
+    
+    function checkSystemStatus() {
+      $.ajax({
+        url: "/check_status",
+        type: "GET",
+        success: function(response) {
+          if (response.status === "operational") {
+            // System is fully operational
+            console.log("System is operational");
+          } else {
+            // System is in degraded mode
+            console.log("System is in degraded mode");
+          }
+        },
+        error: function(error) {
+          console.error("Error checking system status: ", error);
+        }
+      });
+    }
+    
+    // Function to append a temporary system message that will auto-disappear
+    function appendSystemMessage(message) {
+      const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      let messageHtml = `
+        <div class="message system-message">
+          <div class="message-content">
+            <div class="message-text">${message}</div>
+          </div>
+        </div>
+      `;
+      
+      const $messageElement = $(messageHtml);
+      $("#messageFormeight").append($messageElement);
+      
+      // Scroll to bottom
+      $("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+      
+      // Auto-remove system messages after 5 seconds
+      setTimeout(function() {
+        $messageElement.fadeOut(500, function() {
+          $(this).remove();
+        });
+      }, 5000);
+    }
+    
+    function appendMessage(sender, message) {
+      const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      let messageHtml;
+      
+      if (sender === "user") {
+        // User message aligned to the right
+        messageHtml = `
+          <div class="message user-message">
+            <div class="message-content">
+              <div class="message-text">${message}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        // AI message aligned to the left
+        messageHtml = `
+          <div class="message ai-message">
+            <div class="message-content">
+              <div class="message-text">${message}</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      $("#messageFormeight").append(messageHtml);
+      
+      // Scroll to bottom
+      $("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+    }
+    
+    function showGeneratingIndicator() {
+      const generatingHtml = `
+        <div class="message generating-indicator" id="generatingIndicator">
+          <div class="indicator-content">
+            <div class="indicator-icon">
+              <div class="indicator-spinner"></div>
+            </div>
+            <div class="indicator-text">Generating</div>
+            <div class="indicator-dots">
+              <div class="indicator-dot"></div>
+              <div class="indicator-dot"></div>
+              <div class="indicator-dot"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      $("#messageFormeight").append(generatingHtml);
+      $("#messageFormeight").scrollTop($("#messageFormeight")[0].scrollHeight);
+    }
+    
+    function removeGeneratingIndicator() {
+      $("#generatingIndicator").remove();
+    }
+    
+    function sendMessage() {
+      const userMsg = $("#userMsg").val().trim();
+      
+      if (userMsg === "") return;
+      
+      // Display user message
+      appendMessage("user", userMsg);
+      
+      // Clear input field
+      $("#userMsg").val("");
+      
+      // Show generating indicator
+      showGeneratingIndicator();
+      
+      // Send message to server
+        $.ajax({
+        url: "/get",
+        type: "POST",
+          data: {
+          msg: userMsg,
+          url: currentUrl,
+          pdf_filename: currentPdfFilename,
+          session_id: currentSessionId
+        },
+        success: function(response) {
+          // Remove generating indicator
+          removeGeneratingIndicator();
+          
+          // Display bot response
+          appendMessage("chatai", response);
+        },
+        error: function(error) {
+          // Remove generating indicator
+          removeGeneratingIndicator();
+          
+          console.error("Error sending message: ", error);
+          appendMessage("chatai", "Sorry, there was an error processing your request.");
+        }
+      });
+    }
+    
+    function uploadPdf() {
+      const fileInput = document.getElementById('pdfFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        appendSystemMessage("Please select a PDF file to upload.");
+        return;
+      }
+      
+      // Check file size (16MB = 16 * 1024 * 1024 bytes)
+      const maxSize = 16 * 1024 * 1024; // 16MB in bytes
+      if (file.size > maxSize) {
+        appendSystemMessage("File is too large. Maximum size is 16MB.");
+        return;
+      }
+      
+      // Check if we already have a PDF for this session
+      if (currentPdfFilename) {
+        if (!confirm("You've already uploaded a PDF. Uploading a new one will replace the current PDF. Continue?")) {
+          return;
+        }
+      }
+      
+      const formData = new FormData();
+      formData.append('pdf', file);
+      formData.append('session_id', currentSessionId);
+      
+      appendSystemMessage("Uploading PDF, please wait...");
+      showGeneratingIndicator();
+      
+      $.ajax({
+        url: "/upload_pdf",
+          type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          removeGeneratingIndicator();
+          if (response.status === "success") {
+            currentPdfFilename = response.filename;
+            currentUrl = ""; // Clear any URL when uploading PDF
+            
+            // Refresh the PDF list
+            refreshPdfList();
+            
+            // Clear chat history for new PDF
+            clearChatHistory();
+            appendSystemMessage("PDF uploaded successfully! You can now ask questions about it.");
+          } else {
+            appendSystemMessage("Error uploading PDF: " + response.message);
+          }
+        },
+        error: function(error) {
+          removeGeneratingIndicator();
+          console.error("Error uploading PDF: ", error);
+          appendSystemMessage("Error uploading PDF. Please try again.");
+        }
+      });
+    }
+    
+    function loadUrl() {
+      const url = $("#paperUrl").val().trim();
+      
+      if (url === "") {
+        appendSystemMessage("Please enter a URL to load.");
+        return;
+      }
+      
+      // Check URL format to ensure it's from supported sources
+      if (!url.includes('arxiv.org') && !url.includes('ieee.org') && !url.includes('sciencedirect.com')) {
+        appendSystemMessage("Only ArXiv, IEEE, and Science Direct links are supported.");
+        return;
+      }
+      
+      // Check if we already have a PDF for this session
+      if (currentPdfFilename) {
+        if (!confirm("You've already uploaded a PDF. Loading a URL will replace the current PDF. Continue?")) {
+          return;
+        }
+        // Clear PDF reference since we're switching to URL
+        currentPdfFilename = "";
+        // Clear the PDF list
+        $("#pdfList").empty().append('<li class="no-pdfs">No PDF uploaded yet</li>');
+      }
+      
+      appendSystemMessage("Loading URL, please wait...");
+      showGeneratingIndicator();
+      
+      $.ajax({
+        url: "/process_url",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ 
+          url: url,
+          session_id: currentSessionId 
+        }),
+        success: function(response) {
+          removeGeneratingIndicator();
+          if (response.status === "success") {
+            currentUrl = url;
+            
+            // Clear chat history for new content
+            clearChatHistory();
+            appendSystemMessage("URL loaded successfully! You can now ask questions about the paper.");
+          } else {
+            appendSystemMessage("Error loading URL: " + response.message);
+          }
+        },
+        error: function(error) {
+          removeGeneratingIndicator();
+          console.error("Error loading URL: ", error);
+          appendSystemMessage("Error loading URL. Please check if it's a valid research paper URL.");
+        }
+      });
+    }
+  </script>
+</body>
+</html>

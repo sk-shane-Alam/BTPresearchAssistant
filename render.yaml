@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: research-assistant
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt 
+      ./build.sh
+    startCommand: gunicorn main:app --bind 0.0.0.0:10000
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
+    autoDeploy: true 

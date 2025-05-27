@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='homeStyle.css')}}">
+    <title>Research Assistant</title>
+    
+    <!-- Backup Styles in case CSS doesn't load -->
+    <style>
+        /* Basic styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-primary: #212529;
+            --bg-secondary: #343a40;
+            --bg-tertiary: #343a40;
+            --text-primary: #dee2e6;
+            --text-secondary: #adb5bd;
+            --accent-color: #5d5cde;
+            --border-color: #495057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header and Navigation */
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-primary);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(93, 92, 222, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header class="site-header">
+            <div class="logo">
+                <i class="ri-book-read-line"></i>
+                <span>Research Assistant</span>
+            </div>
+            <nav class="main-nav">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="{{url_for('index')}}" class="active">Home</a></li>
+                    <li><a href="{{url_for('chat_page')}}">Chat</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>AI-Powered Research Paper Assistant</h1>
+                    <p class="hero-description">
+                        Unlock the knowledge within scientific papers through an intelligent research assistant. 
+                        Upload PDFs or enter URLs from ArXiv, IEEE, or Science Direct to get instant insights
+                        and answers to your specific questions about the content.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="{{ url_for('chat_page') }}" class="primary-btn">Start Exploring <i class="ri-arrow-right-line"></i></a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://kstatic.googleusercontent.com/files/202018a3b69e60845af5a9903c7bf87010a2e2e8d987bd0fef5a598c0ee2b4345721a4c549a4a8039ff3a3dfd85239de3d6735b9956ff60f525b72e36c377164" alt="Research Assistant">
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <div class="container">
+                <h2>Why Choose Our Platform?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="ri-search-line"></i></div>
+                        <h3>Effortless Search</h3>
+                        <p>Access relevant research papers with a simple URL or PDF upload.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="ri-robot-line"></i></div>
+                        <h3>AI-Enhanced Insights</h3>
+                        <p>Get accurate and refined answers powered by advanced AI models.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="ri-focus-3-line"></i></div>
+                        <h3>Targeted Analysis</h3>
+                        <p>Ask specific questions about the research and get precise responses.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="call-to-action">
+            <div class="container">
+                <h2>Enhance your research journey</h2>
+                <p>Transform academic PDFs and research papers into interactive conversations.</p>
+                <a href="{{ url_for('chat_page') }}" class="primary-btn">Get Started Now</a>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <div class="container">
+                <p>© 2025 Research Assistant. All rights reserved.</p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
